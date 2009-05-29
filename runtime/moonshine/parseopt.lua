@@ -18,7 +18,7 @@ local option_names  = Ct (option_name * option_rest)
 local option        = option_names * ( (P "=" * option_hint) + Cc 'boolean' )
 
 local function parse_spec (s)
-    return lpeg.match(option, s)
+	return lpeg.match(option, s)
 end
 -- }}}
 
@@ -40,40 +40,40 @@ function M.build_parser(...)--{{{
 		end
 	end--}}}
 
-    return function(text)--{{{
-	    local options = {}
-	    local args    = {}
-	    local function callback(name, value)--{{{
-	        local primary = alias[name or '']
-	        local hint    = hints[primary]
-	        if primary == nil then
-	            if hints[ #args + 1 ] then
-	                table.insert(args, value)
-	                return core.NOARG
-	            else
-	                return core.STOP
-	            end
-	        elseif hint == 'boolean' then
-	            options[primary] = true
-	            return core.NOARG
-	        elseif hint == 'string' then
-	            options[primary] = value
-	            return core.EATARG
-	        elseif hint == 'number' then
-	            options[primary] = tonumber(value) 
-	            return core.EATARG
-	        elseif hint == 'list' then
-	            if not options[primary] then
-	                options[primary] = {}
-	            end
-	            table.insert(options[primary], value)
-	            return core.EATARG
-	        end
-	    end--}}}
-	    
-	    local rest = core.parse(text, callback)
-	    table.insert(args, rest)
-	    return options, unpack(args)
+	return function(text)--{{{
+		local options = {}
+		local args    = {}
+		local function callback(name, value)--{{{
+			local primary = alias[name or '']
+			local hint    = hints[primary]
+			if primary == nil then
+				if hints[ #args + 1 ] then
+					table.insert(args, value)
+					return core.NOARG
+				else
+					return core.STOP
+				end
+			elseif hint == 'boolean' then
+				options[primary] = true
+				return core.NOARG
+			elseif hint == 'string' then
+				options[primary] = value
+				return core.EATARG
+			elseif hint == 'number' then
+				options[primary] = tonumber(value) 
+				return core.EATARG
+			elseif hint == 'list' then
+				if not options[primary] then
+					options[primary] = {}
+				end
+				table.insert(options[primary], value)
+				return core.EATARG
+			end
+		end--}}}
+		
+		local rest = core.parse(text, callback)
+		table.insert(args, rest)
+		return options, unpack(args)
 	end--}}}
 end--}}}
 
