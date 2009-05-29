@@ -1,1 +1,50 @@
 Moonshine is a series of tubes. Or functions.
+
+
+===== Tags
+
+Tags are identifiers that represent some communications channel we can listen to. They form a tree of increasingly refined channels.
+
+root (/)
+ |
+ +---\ /fooirc
+     |
+     +----* /fooirc/#lobby
+     |
+     +----\ /fooirc/bd_
+          |
+          +----+ /fooirc/bd_/dcc
+               |
+               +----* /fooirc/bd_/dcc/0
+
+Tags can be triggered. This broadcasts a message to all entities listening to this tag.
+
+    tag = Tag:find('/fooirc/#lobby')
+    tag('PART', Tag:find('/fooirc/dylan'))
+
+Tags do not necessarily need to be created. Depending on the protocol (or rather, the parent node), they may be autovivified (users, channels, etc), or they may need explicit registration (eg, the root). Referencing a tag, even if it autovivifies, should be pure; just because you attach to /fooirc/#lobby should not send a JOIN.
+
+Unreferencing a tag might not be idempotent (discuss?). For example, if the last
+window bound to the /fooirc/#lobby tag goes away, the /fooirc protocol handler
+might decide to part #lobby.
+
+If a tag is triggered but has no listeners, the message is automatically
+rebroadcast on the parent. For example, consider this scenario:
+
+   A user has a /someirc/#lobby window open and is chatting. They then do
+   /window close to close the window and part (because the tag has no
+   listeners) at the same time. Meanwhile, the server sends out another chat
+   line.  The chat line is redirected to the /someirc status window to ensure
+   it will not be lost.
+
+Future directions:
+  * It might be interesting to associate scrollback with tags rather than
+    windows. For example, one could open a new window, then attach it to
+    /two/ channels. It would show the combined scrollback of both, and
+    one can speak on either using ^X or /say -t
+  * Listeners that do not prevent propagation to parent may be an interesting
+    concept for refinement. For example, one might want to have a single
+    /twitter window showing all twits. Then by binding a window to
+    /twitter/dylanwh one can see dylan's twits in a seperate window.
+    However one might want to leave these in the /twitter window as well.
+    This may require some thought to play nice with tag-linked scrollback...
