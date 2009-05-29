@@ -1,3 +1,5 @@
+* Need a good way of finding the 'status' window to attach new connections to;
+  also, a way to go from tags to the windows listening to them
 * Investigate terminal input edge cases
   = Malformed UTF8 - we might hang
   = Escape sequences that are unknown may result in later ones being lost eg:
