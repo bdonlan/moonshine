@@ -4,7 +4,7 @@ local lpeg  = require "lpeg"
 local M     = {} 
 
 -- {{{ spec parsing stuff
-local HINTS = { s = 'string', n = 'number', t = 'table', l = 'list', b = 'boolean', i = 'counter' }
+local HINTS = { s = 'string', n = 'number', t = 'table', l = 'list', b = 'boolean', i = 'counter', g = 'tag' }
 
 local P, S, R       = lpeg.P, lpeg.S, lpeg.R  
 local C, Ct, Cc     = lpeg.C, lpeg.Ct, lpeg.Cc
@@ -12,7 +12,7 @@ local C, Ct, Cc     = lpeg.C, lpeg.Ct, lpeg.Cc
 local letter        = R ("az", "AZ") + S "_-"
 local word          = letter ^ 1
 local option_name   = C ( word )
-local option_hint   = S "sntlbc" / HINTS
+local option_hint   = S "sntlbcg" / HINTS
 local option_rest   = (P "|" * option_name) ^ 0
 local option_names  = Ct (option_name * option_rest)
 local option        = option_names * ( (P "=" * option_hint) + Cc 'boolean' )
@@ -25,6 +25,7 @@ end
 function M.build_parser(...)--{{{
 	local hints = {}
 	local alias = {}
+	local tag_params = {}
 
 	for _, spec in ipairs { ... } do--{{{
 		if type(spec) == 'number' or spec:match("^%d$") then
@@ -32,6 +33,14 @@ function M.build_parser(...)--{{{
 		else
 			local names, hint = parse_spec(spec)
 			local primary     = table.remove(names, 1)
+
+			if hint == 'tag' then
+				table.insert(tag_params, primary)
+				-- XXX: later we'll want to map tags back to some sort of object
+				-- call it a string for now...
+				hint = 'string'
+			end
+
 			hints[primary]    = hint
 			alias[primary]    = primary
 			for _, name in ipairs (names) do
@@ -74,6 +83,13 @@ function M.build_parser(...)--{{{
 		
 		local rest = core.parse(text, callback)
 		table.insert(args, rest)
+
+		for idx, tn in ipairs(tag_params) do
+			if options[tn] == nil then
+				options[tn] = curwindow:tag()
+			end
+		end
+
 		return options, unpack(args)
 	end--}}}
 end--}}}
