@@ -255,6 +255,11 @@ function Screen:word_right()--{{{
 	self:render()
 end--}}}
 
+function Screen:shift_tag()--{{{
+	self.window:shift_tag()
+	self:render()
+end
+
 function Screen:history_save()--{{{
 	if not self.entry:is_dirty() or self.entry:get() == "" then
 		return

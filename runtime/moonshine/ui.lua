@@ -29,6 +29,7 @@ keymap.register('delete_word',   screen:callback "word_delete")
 keymap.register('left_by_word',  screen:callback "word_left")
 keymap.register('right_by_word', screen:callback "word_right")
 keymap.register('command',       shell.eval)
+keymap.register('shift tag',     screen:callback "shift_tag")
 
 keymap.bind("^[[A",    "up")
 keymap.bind("^[[B",    "down")
@@ -52,6 +53,7 @@ keymap.bind("^H",      "backspace")
 keymap.bind("^M",      "submit")
 keymap.bind("^C",      "command", "/quit")
 keymap.bind("^L",      "redraw")
+keymap.bind("^X",      "shift tag")
 --}}}
 
 local log = require "moonshine.log"
