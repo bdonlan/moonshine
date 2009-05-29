@@ -60,7 +60,7 @@ add_hook("unknown hook", function (name, args)
 	log('warning', "unknown hook: %s (%s)", name, join("|", args or {}))
 end)
 
-add_hook("unknown command", function(name)
+add_hook("unknown command", function(name, window)
 	log("warning", "unknown command: /%s", name)
 end)
 

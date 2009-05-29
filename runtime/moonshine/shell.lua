@@ -16,7 +16,7 @@ local parseopt = require "moonshine.parseopt"
 local M        = {}
 local cmd      = {}
 
-function M.call(name, arg)
+function M.call(name, arg, curwindow)
 	local func = cmd[name]
 	if not func then
 		local ok, errmsg = pcall(M.require, name)
@@ -29,7 +29,7 @@ function M.call(name, arg)
 	end
 
 	if func then
-		local ok, errmsg = pcall(func, arg)
+		local ok, errmsg = pcall(func, arg, curwindow)
 		if not ok then
 			run_hook('shell error', errmsg)
 			return false
@@ -37,12 +37,12 @@ function M.call(name, arg)
 			return true
 		end
 	else
-		run_hook("unknown command", name, arg)
+		run_hook("unknown command", name, arg, curwindow)
 		return nil
 	end
 end
 
-function M.eval(line)
+function M.eval(line, curwindow)
 	local name, pos = string.match(line, "^/([%w_]+)()")
 	local arg
 	if name then
@@ -53,7 +53,7 @@ function M.eval(line)
 		arg  = line
 	end
 
-	return M.call(name, arg)
+	return M.call(name, arg, curwindow)
 end
 
 function M.register(name, def)
@@ -65,8 +65,8 @@ function M.register(name, def)
 
 	if spec then
 		local parser = parseopt.build_parser( unpack(spec) )
-		cmd[name] = function(text)
-			run( parser(text) )
+		cmd[name] = function(text, curwindow)
+			run( parser(text, curwindow) )
 		end
 	else
 		cmd[name] = run

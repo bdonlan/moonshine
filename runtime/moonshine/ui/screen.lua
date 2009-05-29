@@ -274,7 +274,7 @@ function Screen:submit()--{{{
 		self.sb_at_end = true
 		self.entry:clear()
 		self:render()
-		shell.eval(line)
+		shell.eval(line, self.window)
 	end
 end--}}}
 

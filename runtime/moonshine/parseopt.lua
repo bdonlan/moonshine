@@ -40,9 +40,10 @@ function M.build_parser(...)--{{{
 		end
 	end--}}}
 
-	return function(text)--{{{
-		local options = {}
+	return function(text, curwindow)--{{{
+		local options = { _window = curwindow, _rawtext = text }
 		local args    = {}
+
 		local function callback(name, value)--{{{
 			local primary = alias[name or '']
 			local hint    = hints[primary]
