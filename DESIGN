@@ -48,3 +48,26 @@ Future directions:
     /twitter/dylanwh one can see dylan's twits in a seperate window.
     However one might want to leave these in the /twitter window as well.
     This may require some thought to play nice with tag-linked scrollback...
+
+===== Logging
+
+Some thoughts on the log format (nothing definite!)
+* Option: sqlite
+  Advantages: Indexes, easy to do queries etc
+  Disadvantage: Relatively heavyweight (we're append-only and mostly care
+    about date sorted queries)
+    Needs to fsync or will get corrupted
+    Not human readable
+* Option: append only logs with index
+  Write the log file out in date order, put an index in another file to do
+  binary search on.
+  Advantages: Dead simple. Doesn't need to be fsynced (we might lose some
+    entries, but the start of the log ought to be fine)
+    Might even be human readable depending on the format.
+    Easy to split out by date range.
+  Disadvantages: Need to write it from scratch. Restricting to a human readable
+    format for the main log might be limiting.
+  Another advantage: We can compress the log later, using zlib's Z_FULL_FLUSH
+    to add restart points in the compressed stream, while still being able to
+    do reverse-search on it.
+
