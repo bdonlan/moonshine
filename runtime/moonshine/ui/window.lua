@@ -2,13 +2,13 @@ local term      = require "moonshine.ui.term"
 local Object    = require "moonshine.object"
 local Buffer    = require "moonshine.ui.buffer"
 local Statusbar = require "moonshine.ui.statusbar"
-local Window    = Object:subclass()
+local Window    = Object:clone()
 
 -- Window:add_attribute("name", { required = true })
 -- For now, use the tag as our name. Later we may want name shortnames
 -- (ie, #lobby vs sine/#lobby) or aliases... but this should be a function of
 -- the tag
-Window:add_attribute("tag", { required = false })
+Window:add_attribute("tag")
 
 function Window:name()
 	local tag = self:tag()
@@ -19,7 +19,7 @@ function Window:name()
 	end
 end
 
-function Window:__init()
+function Window:__new()
 	self._topic    = Statusbar:new("")
 	self._buffer   = Buffer:new(1014)
 	self._activity = 0
