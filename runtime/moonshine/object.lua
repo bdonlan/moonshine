@@ -71,4 +71,30 @@ function Object.add_attribute(mt, name)
 	end
 end
 
+function Object:around(name, func)
+	local old = self[name]
+	if old == nil then
+		old = function(...) end
+	end
+
+	self[name] = function(...)
+		return func(old, ...)
+	end
+end
+
+function Object:before(name, func)
+	self:around(name, function (orig, ...)
+		func(...)
+		return orig(...)
+	end)
+end
+
+function Object:after(name, func)
+	self:around(name, function (orig, ...)
+		local result = {orig(...)}
+		func(result, ...)
+		return unpack(result)
+	end)
+end
+
 return Object
