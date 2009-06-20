@@ -2,21 +2,27 @@ local term      = require "moonshine.ui.term"
 local Object    = require "moonshine.object"
 local Buffer    = require "moonshine.ui.buffer"
 local Statusbar = require "moonshine.ui.statusbar"
+local Tag       = require "moonshine.tag"
+local TagRoot   = require "moonshine.tag.root"
 local Window    = Object:clone()
 
 -- Window:add_attribute("name", { required = true })
 -- For now, use the tag as our name. Later we may want name shortnames
 -- (ie, #lobby vs sine/#lobby) or aliases... but this should be a function of
 -- the tag
+
 Window:add_attribute("tag")
 
 function Window:name()
-	local tag = self:tag()
-	if tag then
-		return tag
+	if not self:tag() then
+		return "(empty)"
 	else
-		return "empty"
+		return self:tag():display_name()
 	end
+end
+
+function Window:current_tag()
+	return self:tag()
 end
 
 function Window:__new()
@@ -33,7 +39,7 @@ function Window:add_tag(newtag)
 		return
 	end
 
-	local idx;
+	local idx
 	for i, v in ipairs(self._alttags) do
 		if v == newtag then
 			idx = i
@@ -51,13 +57,17 @@ function Window:add_tag(newtag)
 end
 
 function Window:shift_tag()
-	if tag ~= nil then
+	if self:tag() then
 		table.insert(self._alttags, self:tag())
 	end
 
-	self:tag(self._alttags[1]);
-	table.remove(self._alttags, 1)
+	if self._alttags[1] then
+		self:tag(self._alttags[1])
+		table.remove(self._alttags, 1)
+	end
 end
+
+-- TODO: remove_tag()
 
 function Window:print(fmt, ...)
 	self:actprint(1, fmt, ...)

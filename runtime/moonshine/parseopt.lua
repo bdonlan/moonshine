@@ -36,9 +36,6 @@ function M.build_parser(...)--{{{
 
 			if hint == 'tag' then
 				table.insert(tag_params, primary)
-				-- XXX: later we'll want to map tags back to some sort of object
-				-- call it a string for now...
-				hint = 'string'
 			end
 
 			hints[primary]    = hint
@@ -77,6 +74,9 @@ function M.build_parser(...)--{{{
 					options[primary] = {}
 				end
 				table.insert(options[primary], value)
+				return core.EATARG
+			elseif hint == 'tag' then
+				options[primary] = curwindow:tag():resolve_path(value)
 				return core.EATARG
 			end
 		end--}}}

@@ -8,6 +8,7 @@ local Buffer    = require "moonshine.ui.buffer"
 local Statusbar = require "moonshine.ui.statusbar"
 local Window    = require "moonshine.ui.window"
 local Timer     = require "moonshine.timer"
+local TagRoot   = require "moonshine.tag.root"
 
 local Screen    = Object:clone()
 
@@ -30,7 +31,7 @@ function Screen:__new()--{{{
 		"status_activity",
 	}
 	self.status:set( term.format("%{topic}Status bar goes here", {}))
-	self:add( Window:new { } )
+	self:add( Window:new { tag = TagRoot } )
 end--}}}
 
 function Screen:status_time()--{{{

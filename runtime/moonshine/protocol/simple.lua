@@ -19,7 +19,7 @@ do
 		"write"
 	}
 
-	for i, name in ipairs(name) do
+	for i, name in ipairs(names) do
 		Simple[name] = function(self, ...)
 			local client = self:client()
 			return client[name](client, ...)
@@ -38,7 +38,7 @@ function Simple:__new()
 	self:client(client)
 end
 
-function Simple:make_tag(i)
+function Simple:make_tagname(i)
 	local hostname = split("%.", self:hostname())
 	local tag
 

@@ -1,11 +1,11 @@
 local M = {}
-local TAGS = {}
+local TagRoot   = require "moonshine.tag.root"
 
 function M.connect(name, ...)
 	local log    = require "moonshine.log"
 	local Class  = require("moonshine.protocol." .. name)
 	local protocol = Class:new(...)
-	local tag    = protocol:attach(TAGS)
+	local tag    = protocol:attach(TagRoot)
 
 	protocol:connect()
 
@@ -16,9 +16,13 @@ local METHODS = { "join", "part", "quit", "public_message", "private_message", "
 
 for _, name in ipairs(METHODS) do
 	M[name] = function(tag, ...)
-		local obj  = TAGS[tag]
-		local func = obj[name]
-		return func(obj, ...)
+		local proto = tag._protocol
+		local func
+		if proto then
+			func = proto[name]
+		end
+		assert(func, "Bad command for this protocol")
+		return func(proto, ...)
 	end
 end
 
