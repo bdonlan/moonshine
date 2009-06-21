@@ -31,6 +31,11 @@ keymap.register('right_by_word', screen:callback "word_right")
 keymap.register('command',       shell.eval)
 keymap.register('shift tag',     screen:callback "shift_tag")
 
+for i=1,9 do
+	keymap.register('goto '..tostring(i), screen:callback('goto', i))
+	keymap.bind("^["..tostring(i), "goto "..tostring(i))
+end
+
 keymap.bind("^[[A",    "up")
 keymap.bind("^[[B",    "down")
 keymap.bind("^[[C",    "right")
