@@ -133,8 +133,9 @@ function Window:resize()
 end
 
 --- Announcement hooks
-function Window:on_public_message(aux_info, deprecated_room, user, kind, text)
+function Window:on_public_message(aux_info, srcuser, kind, text)
 	local show_prefix = true
+	local user = srcuser:display_name()
 
 	if not self._alttags[1] and self:tag() and self:tag() == aux_info.origin then
 		show_prefix = false

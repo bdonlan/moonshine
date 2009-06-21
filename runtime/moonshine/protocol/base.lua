@@ -18,9 +18,16 @@ function Protocol:make_tagname(i)
 	return 'protocol' .. tostring(i+1)
 end
 
+function Protocol:vivify(name)
+	return nil
+end
+
 function Protocol:make_tag(tagname)
 	local tag = Tag:new{name = tagname}
 	tag._protocol = self
+	tag.vivify = function (tagself, name)
+		return self:vivify(name)
+	end
 	return tag
 end
 

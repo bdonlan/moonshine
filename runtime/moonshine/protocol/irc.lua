@@ -1,5 +1,6 @@
 local numerics = require "moonshine.protocol.irc.numerics"
 local Protocol = require "moonshine.protocol.simple"
+local Tag      = require "moonshine.tag"
 local log      = require "moonshine.log"
 local IRC = Protocol:clone()
 
@@ -23,6 +24,25 @@ local function ircsplit(line)
   	return t
 end
 
+IRC:around('make_tag', function (orig, self, tagname)
+	local tag = orig(self, tagname)
+	tag.is_weak = true
+	return tag
+end)
+
+function IRC:vivify(tagname)
+	local tag = Tag:new{name = tagname}
+	tag._irc = {}
+	tag._irc.is_channel = self:is_channel(tagname)
+
+	if tag._irc.is_channel then
+		---
+	else
+		---
+	end
+
+	return tag
+end
 
 function IRC:on_connect()
 	self:send("NICK %s", self:username())
@@ -150,8 +170,10 @@ function IRC:is_channel(target)
 end
 
 function IRC:PRIVMSG(prefix, target, text)
-	local user   = prefix:match("(.+)!")
-	local ctcp   = text:match("\001(.+)\001")
+	local user    = prefix:match("(.+)!")
+	local ctcp    = text:match("\001(.+)\001")
+	local targtag = self:tag():lookup(target)
+	local srctag  = self:tag():lookup(user)
 
     text = stripcolors(text)
 	if ctcp then
@@ -165,12 +187,12 @@ function IRC:PRIVMSG(prefix, target, text)
 		end
 		self:trigger('irc ctcp ' .. cmd:lower(), prefix, target, body)
 	else
-		if self:is_channel(target) then
+		if targtag._irc.is_channel then
 			-- (from room, from user, type, text)
-			self:trigger('public message', target, user, 'normal', text)
+			targtag:announce('public message', {srctag, 'normal', text})
 		else
 			-- (from user, type, text)
-			self:trigger('private message', user, 'normal', text)
+			srctag:announce('private message', {srctag, 'normal', text})
 		end
 	end
 end
