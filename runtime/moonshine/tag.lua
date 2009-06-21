@@ -38,10 +38,8 @@ function Tag:lookup(name, try_vivify)
 	local tt = self:tag_table()
 	local result = tt[name]
 
-	log('debug', 'lookup result %s', tostring(result))
 	-- try_vivify = nil will not trigger here; the default is thus true
 	if result or try_vivify == false then
-		log('debug', "returning")
 		return result
 	end
 
@@ -70,8 +68,9 @@ function Tag:attach(value)
 	value:parent(self)
 	tt[name] = value
 
-	log('debug', "linked %s", name)
 	assert(self:lookup(name) == value, "lookup works after attach")
+	assert(self:resolve_path(name) == value, "resolve works after attach")
+	assert(self:resolve_path(value:path()) == value, "resolve works on abs path")
 	assert(value:parent() == self, "parent took")
 end
 
@@ -181,13 +180,27 @@ function Tag:display_name()
 	return self:path()
 end
 
+function Tag:dump_tree(prefix)
+	if not prefix then
+		log('debug', "*** DUMPING TAG TREE ***")
+		prefix = ""
+	end
+
+	prefix = prefix .. "/" .. self:name()
+	log('debug', prefix)
+	for i, v in pairs(self:tag_table()) do
+		v:dump_tree(prefix)
+	end
+end
+
 local root
 function Tag:resolve_path(path)
 	if string.sub(path, 1, 1) == '/' then
 		if not root then
 			root = require "moonshine.tag.root"
 		end
-		return root:lookup(string.sub(path, 2))
+		local remain = string.sub(path, 2)
+		return root:resolve_path(string.sub(path, 2))
 	end
 
 	local ptr = self
@@ -204,6 +217,8 @@ function Tag:resolve_path(path)
 			return nil
 		end
 	end
+
+	return ptr
 end
 
 return Tag
