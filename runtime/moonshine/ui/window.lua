@@ -12,6 +12,7 @@ local Window    = Object:clone()
 -- the tag
 
 Window:add_attribute("tag")
+Window:add_attribute("activity")
 
 local screen
 function do_render()
@@ -36,12 +37,13 @@ end
 function Window:__new()
 	self._topic    = Statusbar:new("")
 	self._buffer   = Buffer:new(1014)
-	self._activity = 0
 	self._alttags  = { }
 	-- we need a unique value, so build a closure here
 	self._callback = function (...)
 		self:handle_broadcast(...)
 	end
+
+	self:activity(0)
 
 	self:set_topic("Moonshine - A Haver Client")
 end
@@ -99,7 +101,9 @@ end
 function Window:actprint(activity, fmt, ...)
 	local str = term.format(os.date("%H:%M ")..tostring(fmt), { ... })
 
-	self._activity = math.max(self._activity, activity)
+	assert(activity ~= nil)
+	self:activity(math.max(self:activity(), activity))
+	assert(self:activity() ~= nil)
 	self._buffer:print(str)
 end
 

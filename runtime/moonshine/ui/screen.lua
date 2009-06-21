@@ -1,6 +1,7 @@
 local shell  = require "moonshine.shell"
 local term   = require "moonshine.ui.term"
 local idle   = require "moonshine.idle"
+local log    = require "moonshine.log"
 
 local Object    = require "moonshine.object"
 local Entry     = require "moonshine.ui.entry"
@@ -77,14 +78,16 @@ end--}}}
 function Screen:status_activity()--{{{
 	local actvals = { }
 	if self.window then
-		self.window.activity = 0
+		self.window:activity(0)
 	end
 	for i, window in pairs(self.windows) do
-		if (window.activity > 0) then
+		if window:activity() == nil then
+			log('warning', "window %s has activity nil!", tostring(window))
+		elseif (window:activity() > 0) then
 			local code = "important"
-			if window.activity == 1 then
+			if window:activity() == 1 then
 				code = "boring"
-			elseif window.activity == 2 then
+			elseif window:activity() == 2 then
 				code = "normal"
 			end
 			table.insert(actvals, "%{status"..code.."}"..i)
