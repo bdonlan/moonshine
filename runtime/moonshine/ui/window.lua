@@ -13,6 +13,14 @@ local Window    = Object:clone()
 
 Window:add_attribute("tag")
 
+local screen
+function do_render()
+	if not screen then
+		screen = require "moonshine.ui.screen.main"
+	end
+	screen:render()
+end
+
 function Window:name()
 	if not self:tag() then
 		return "(empty)"
@@ -30,8 +38,21 @@ function Window:__new()
 	self._buffer   = Buffer:new(1014)
 	self._activity = 0
 	self._alttags  = { }
+	-- we need a unique value, so build a closure here
+	self._callback = function (...)
+		self:handle_broadcast(...)
+	end
 
 	self:set_topic("Moonshine - A Haver Client")
+end
+
+function Window:handle_broadcast(trigger, args, aux_info)
+	trigger = trigger:gsub(" ", "_")
+	log('debug', 'broadcast trigger: ' .. trigger)
+	if not aux_info.consumed and self["on_" .. trigger] then
+		return self["on_" .. trigger](self, aux_info, unpack(args))
+	end
+	return false
 end
 
 function Window:add_tag(newtag)
@@ -54,6 +75,8 @@ function Window:add_tag(newtag)
 	if not self:tag() then
 		self:shift_tag()
 	end
+
+	newtag:register_listener(self._callback, true)
 end
 
 function Window:shift_tag()
@@ -103,6 +126,23 @@ end
 
 function Window:resize()
 	self._buffer:is_dirty(true)
+end
+
+--- Announcement hooks
+function Window:on_public_message(aux_info, deprecated_room, user, kind, text)
+	local show_prefix = true
+
+	if not self._alttags[1] and self:tag() and self:tag() == aux_info.origin then
+		show_prefix = false
+	end
+
+	if show_prefix then
+		self:print("[%1] <%2> %|%3", aux_info.origin:path(), user, text)
+	else
+		self:print("<%1> %|%2", user, text)
+	end
+
+	do_render()
 end
 
 return Window

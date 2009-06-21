@@ -53,7 +53,7 @@ end
 
 -- trigger a hook, with tag context.
 function Protocol:trigger(name, ...)
-	self:tag():announce({name, ...})
+	self:tag():announce(name, {...})
 	run_hook(name, self:tag(), ...)
 end
 

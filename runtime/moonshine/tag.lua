@@ -151,7 +151,7 @@ function Tag:unregister_listener(callback)
 	end
 end
 
-function Tag:announce(message, aux_info)
+function Tag:announce(cmd, message, aux_info)
 	local bt = self:broadcast_tbl()
 	local consumed = false
 
@@ -160,20 +160,20 @@ function Tag:announce(message, aux_info)
 	end
 
 	for cb, active in pairs(bt.callbacks) do
-		if cb(message, aux_info) and active then
+		if cb(cmd, message, aux_info) and active then
 			consumed = true
 		end
 	end
 
 	aux_info.consumed = consumed
 
-	self:announce_to_parent(message, aux_info)
+	self:announce_to_parent(cmd, message, aux_info)
 end
 
-function Tag:announce_to_parent(message, aux_info)
+function Tag:announce_to_parent(cmd, message, aux_info)
 	aux_info.nonlocal = true
 	if self:parent() then
-		self:parent():announce(message, aux_info)
+		self:parent():announce(cmd, message, aux_info)
 	end
 end
 
